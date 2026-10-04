@@ -1,4 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head><title>register.html -- WIP</title></head>
+<head><title>register.php -- WIP</title></head>
+<body>
+    <p>This is a test message -- register.php</p>
+</body>
 </html>
