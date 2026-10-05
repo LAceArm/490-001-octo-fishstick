@@ -25,9 +25,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html>
-<head><title>Test</title></head>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <h1>Registration</h1>
-    <button onclick="location.href='./register.php'" type="button">Register</button>
+    <div class="login-box">
+        <h1>Login</h1>
+        <p class="welcome">
+            Welcome back! Please sign in to continue.
+        </p>
+        <?php if ($error): ?>
+            <div class="error">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+        <form method="POST">
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                required
+            >
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+            <button class="login-button" type="submit">
+                Login
+            </button>
+
+        </form>
+        <div class="register-section">
+            <p>Don't have an account?</p>
+            <button
+                class="register-button"
+                onclick="location.href='./register.php'"
+                type="button"
+            >
+                Create an account
+            </button>
+        </div>
+    </div>
 </body>
 </html>
