@@ -47,8 +47,11 @@ function requestProcessor($request)
 
 $server = new rabbitMQServer("SQLMQ.ini","sqlServer");
 
-echo "testRabbitMQServer BEGIN".PHP_EOL;
+$webserver=new rabbitMQServer("WebServer.ini","frontEnd");
+
+echo "BROKER  BEGIN".PHP_EOL;
 $server->process_requests('requestProcessor');
+$webserver->process_requests('requestProcessor');
 echo "testRabbitMQServer END".PHP_EOL;
 exit();
 ?>
