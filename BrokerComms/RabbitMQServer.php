@@ -12,6 +12,19 @@ function doLogin($username,$password)
     //return false if not valid
 }
 
+function doValidate($sessionId)
+{
+	//Validates sessionID
+	return true;
+}
+
+//Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
+function doRegister($username,$password)
+{ 
+	//Tries to send data to database. Awaits response from database. If database says 
+	//record was inserted successfully, return true
+	return true;
+}
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -25,7 +38,9 @@ function requestProcessor($request)
     case "login":
       return doLogin($request['username'],$request['password']);
     case "validate_session":
-      return doValidate($request['sessionId']);
+       return doValidate($request['sessionId']);
+    case "register":
+ 	return doRegister($request['username'],$request['password']);	    
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
