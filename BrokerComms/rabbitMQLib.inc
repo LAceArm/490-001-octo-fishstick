@@ -16,6 +16,9 @@ class rabbitMQServer
 	private $exchange_type = "topic";
 	private $auto_delete = false;
 
+	/*Constrcutor. broker Host is the address of this machine (broker)  */
+
+	/* Ask: What does host.ini do? */
 	function __construct($machine, $server = "rabbitMQ")
 	{
 		$this->machine = getHostInfo(array($machine));
@@ -46,7 +49,7 @@ class rabbitMQServer
     $this->conn_queue->ack($msg->getDeliveryTag());
 		try
 		{
-			if ($msg->getReplyTo())
+			if ($msg->getReplyTo()) //Ask, what does getReplyTo do?
 			{
 				// message wants a response
 				// process request
@@ -124,7 +127,7 @@ class rabbitMQServer
 			// Loop as long as the channel has callbacks registered
 			while (count($channel->callbacks))
 			{
-				$channel->wait();
+				$channel->wait(); //What does wait do?
 			}
 		}
 		catch (Exception $e)
@@ -148,6 +151,7 @@ class rabbitMQClient
 	private $response_queue = array();
 	private $exchange_type = "topic";
 
+	/* Constructor. Broker address is the address of the server */
 	function __construct($machine, $server = "rabbitMQ")
 	{
 		$this->machine = getHostInfo(array($machine));
@@ -167,10 +171,10 @@ class rabbitMQClient
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
 	}
-
+	// Processes responses. No idea how this will be used. Fun!
 	function process_response($response)
 	{
-		$uid = $response->getCorrelationId();
+		$uid = $response->getCorrelationId(); //Mystery function! 
 		if (!isset($this->response_queue[$uid]))
 		{
 		  echo  "unknown uid\n";
@@ -187,6 +191,8 @@ class rabbitMQClient
 		return false;
 	}
 
+	// Send request to server. Unlike the equivalent function in Server, this one does not have a way to process responses
+	// That is a separate function 
 	function send_request($message)
 	{
 		$uid = uniqid();
