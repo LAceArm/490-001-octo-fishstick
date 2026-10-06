@@ -6,7 +6,7 @@ require_once('rabbitMQLib.inc');
 
 function doLogin($username,$password)
 {
-    // lookup username in databas
+    // lookup username in database
     // check password
     return true;
     //return false if not valid
@@ -23,7 +23,17 @@ function doRegister($username,$password)
 { 
 	//Tries to send data to database. Awaits response from database. If database says 
 	//record was inserted successfully, return true
-	return true;
+	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
+	$webClient=new rabbitMQClient("WebServer.ini","frontEnd");
+	$request=array();
+	$request['type']="Register";
+	$request['username']=$username;
+	$request['password']=$password;
+	$request["Message"]='Insert into database';
+	$response=$dbClient->send_request($request);
+	if($response){ 
+		$webClient->publish($response);
+	}
 }
 function requestProcessor($request)
 {
