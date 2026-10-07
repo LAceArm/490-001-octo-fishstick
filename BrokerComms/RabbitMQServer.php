@@ -4,14 +4,14 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-function doLogin($username,$password)
+function doLogin($username,$password,$email)
 {
 	echo "LOGIN ATTEMPT".PHP_EOL;
     // lookup username in database
 	// check password
    $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
    $request=array();
-   $request['type']="Login";
+   $request['type']="login";
    $request['username']=$username;
    $request['password']=$password;
    $request['message']="Check if record exists";
@@ -49,7 +49,7 @@ function doValidate($sessionId)
 }
 
 //Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
-function doRegister($username,$password)
+function doRegister($username,$password,$email)
 { 
 	echo "REGISTER ATTEMPT".PHP_EOL;
 	//Tries to send data to database. Awaits response from database. If database says 
@@ -78,14 +78,15 @@ function requestProcessor($request)
   {
     return "ERROR: unsupported message type";
   }
+  $webserver->process_message($request);
   switch ($request['type'])
   {
-    case "login":
-      return doLogin($request['username'],$request['password']);
+    case "Login":
+      return doLogin($request['username'],$request['password'], $request["email"]);
     case "validate_session":
        return doValidate($request['sessionId']);
     case "register":
- 	return doRegister($request['username'],$request['password']);	    
+ 	return doRegister($request['username'],$request['password'],$request["email"]);	    
   }
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
