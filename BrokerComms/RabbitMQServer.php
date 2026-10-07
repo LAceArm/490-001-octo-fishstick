@@ -7,15 +7,35 @@ require_once('rabbitMQLib.inc');
 function doLogin($username,$password)
 {
     // lookup username in database
-    // check password
-    return true;
+	// check password
+   $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
+   $request=array();
+   $request['type']="Login";
+   $request['username']=$username;
+   $request['password']=$password;
+   $request['message']="Check if record exists";
+   $response=$dbClient->send_request($request);
+   if($response){
+	   if($response["Message"]==="Record found"){ 
+		   return true;
+	   }
+   }
+    return false;
     //return false if not valid
 }
 
 function doValidate($sessionId)
 {
 	//Validates sessionID
-	return true;
+	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
+	$request=array();
+	$request["SessionID"]=$sessionID;
+	$request["Message"]="Check if SessionID is valid";
+	$response=$dbClient->send_request($request);
+	if($response){
+	     if($response["Message"]==="Record found"){return true;}  	
+	}
+	return false;
 }
 
 //Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
@@ -24,7 +44,6 @@ function doRegister($username,$password)
 	//Tries to send data to database. Awaits response from database. If database says 
 	//record was inserted successfully, return true
 	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
-	$webClient=new rabbitMQClient("WebServer.ini","frontEnd");
 	$request=array();
 	$request['type']="Register";
 	$request['username']=$username;
@@ -32,8 +51,11 @@ function doRegister($username,$password)
 	$request["Message"]='Insert into database';
 	$response=$dbClient->send_request($request);
 	if($response){ 
-		$webClient->publish($response);
+		if ($response["Message"]==="Record found"){
+			return true;
+	       	}
 	}
+	return false;
 }
 function requestProcessor($request)
 {
