@@ -24,7 +24,7 @@ function doLogin($username,$password)
 	   }
    }
    echo "LOGIN FAILED";
-    return array("Message"=>"Login failed","returnCode"=>'0'];
+    return array("Message"=>"Login failed","returnCode"=>'0');
     //return false if not valid
 }
 
@@ -90,12 +90,12 @@ function requestProcessor($request)
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
-$server = new rabbitMQServer("SQLMQ.ini","sqlServer");
+//$server = new rabbitMQServer("SQLMQ.ini","sqlServer");
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
 
 echo "BROKER  BEGIN".PHP_EOL;
-$server->process_requests('requestProcessor');
+//$server->process_requests('requestProcessor');
 $webserver->process_requests('requestProcessor');
 echo "testRabbitMQServer END".PHP_EOL;
 exit();
