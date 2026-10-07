@@ -6,7 +6,7 @@ require_once('rabbitMQLib.inc');
 
 function doLogin($username,$password)
 {
-	echo "LOGIN ATTEMPT";
+	echo "LOGIN ATTEMPT".PHP_EOL;
     // lookup username in database
 	// check password
    $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
@@ -23,14 +23,14 @@ function doLogin($username,$password)
 		   return $response;
 	   }
    }
-   echo "LOGIN FAILED";
+   echo "LOGIN FAILED".PHP_EOL;
     return array("Message"=>"Login failed","returnCode"=>'0');
     //return false if not valid
 }
 
 function doValidate($sessionId)
 {
-	echo "VALIDATION ATTEMPT";
+	echo "VALIDATION ATTEMPT".PHP_EOL;
 	//Validates sessionID
 	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
 	$request=array();
@@ -44,14 +44,14 @@ function doValidate($sessionId)
 			return $response;
 		}  	
 	}
-	echo "VALIDATION FAILED";
+	echo "VALIDATION FAILED".PHP_EOL;
 	return array("Message"=>"Validation failed","returnCode"=>'0');
 }
 
 //Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
 function doRegister($username,$password)
 { 
-	echo "REGISTER ATTEMPT";
+	echo "REGISTER ATTEMPT".PHP_EOL;
 	//Tries to send data to database. Awaits response from database. If database says 
 	//record was inserted successfully, return true
 	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer"); //Client. Will send request to database.
@@ -67,7 +67,7 @@ function doRegister($username,$password)
 			return $response;
 	       	}
 	}
-	echo "REGISTRATION FAILED";
+	echo "REGISTRATION FAILED".PHP_EOL;
 	return array("returnCode"=>'0',"message"=> "Registration failed");
 }
 function requestProcessor($request)
