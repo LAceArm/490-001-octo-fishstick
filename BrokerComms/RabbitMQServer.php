@@ -6,6 +6,7 @@ require_once('rabbitMQLib.inc');
 
 function doLogin($username,$password)
 {
+	echo "LOGIN ATTEMPT";
     // lookup username in database
 	// check password
    $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
@@ -17,15 +18,19 @@ function doLogin($username,$password)
    $response=$dbClient->send_request($request);
    if($response){
 	   if($response["Message"]==="Record found"){ 
-		   return true;
+		   echo "SUCCESS";
+		   $response["returnCode"]='1';
+		   return $response;
 	   }
    }
-    return false;
+   echo "LOGIN FAILED";
+    return array("Message"=>"Login failed","returnCode"=>'0'];
     //return false if not valid
 }
 
 function doValidate($sessionId)
 {
+	echo "VALIDATION ATTEMPT";
 	//Validates sessionID
 	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
 	$request=array();
@@ -33,29 +38,37 @@ function doValidate($sessionId)
 	$request["Message"]="Check if SessionID is valid";
 	$response=$dbClient->send_request($request);
 	if($response){
-	     if($response["Message"]==="Record found"){return true;}  	
+		if($response["Message"]==="Record found"){
+			echo "SUCCESS";
+			$response["returnCode"]='1';
+			return $response;
+		}  	
 	}
-	return false;
+	echo "VALIDATION FAILED";
+	return array("Message"=>"Validation failed","returnCode"=>'0');
 }
 
 //Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
 function doRegister($username,$password)
 { 
+	echo "REGISTER ATTEMPT";
 	//Tries to send data to database. Awaits response from database. If database says 
 	//record was inserted successfully, return true
-	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
+	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer"); //Client. Will send request to database.
 	$request=array();
 	$request['type']="Register";
 	$request['username']=$username;
 	$request['password']=$password;
 	$request["Message"]='Insert into database';
-	$response=$dbClient->send_request($request);
-	if($response){ 
+	$response=$dbClient->send_request($request); //Send Request
+	if($response){  //Request did not fail
 		if ($response["Message"]==="Record found"){
-			return true;
+			$response["returnCode"]='1';
+			return $response;
 	       	}
 	}
-	return false;
+	echo "REGISTRATION FAILED";
+	return array("returnCode"=>'0',"message"=> "Registration failed");
 }
 function requestProcessor($request)
 {
@@ -74,7 +87,7 @@ function requestProcessor($request)
     case "register":
  	return doRegister($request['username'],$request['password']);	    
   }
-  return array("returnCode" => '0', 'message'=>"Server received request and processed");
+  return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
 $server = new rabbitMQServer("SQLMQ.ini","sqlServer");
