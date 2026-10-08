@@ -6,7 +6,9 @@ require_once('rabbitMQLib.inc');
 
 function doLogin($username,$password,$email)
 {
+   
 	echo "LOGIN ATTEMPT".PHP_EOL;
+	$webserver=new rabbitMQServer("WebServer.ini","frontEnd");
     // lookup username in database
 	// check password
    $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
@@ -25,7 +27,10 @@ function doLogin($username,$password,$email)
 	   }
    }
    echo "LOGIN FAILED".PHP_EOL;
-    return array("Message"=>"Login failed","returnCode"=>'0');
+   $response["Message"]="Login failed";
+   $response["returnCode"]='0';
+   $webserver->process_message($response);
+    return $response;
     //return false if not valid
 }
 
