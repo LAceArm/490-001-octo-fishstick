@@ -19,7 +19,8 @@ function doLogin($username,$password,$email)
    if($response){
 	   if($response["Message"]==="Record found"){ 
 		   echo "SUCCESS";
-		   $response["returnCode"]='1';
+		   $response["returnCode"]='1';	   
+            	$webserver->process_message($response);
 		   return $response;
 	   }
    }
@@ -41,6 +42,7 @@ function doValidate($sessionId)
 		if($response["Message"]==="Record found"){
 			echo "SUCCESS";
 			$response["returnCode"]='1';
+			$webserver->process_message($response);
 			return $response;
 		}  	
 	}
@@ -64,6 +66,7 @@ function doRegister($username,$password,$email)
 	if($response){  //Request did not fail
 		if ($response["Message"]==="Record found"){
 			$response["returnCode"]='1';
+			$webserver->process_message($response);
 			return $response;
 	       	}
 	}
@@ -78,7 +81,7 @@ function requestProcessor($request)
   {
     return "ERROR: unsupported message type";
   }
-  $webserver->process_message($request);
+	//$webserver->process_message($request);
   switch ($request['type'])
   {
     case "Login":
