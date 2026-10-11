@@ -49,7 +49,7 @@ class rabbitMQServer
     $this->conn_queue->ack($msg->getDeliveryTag());
 		try
 		{
-			if ($msg->getReplyTo()) //Ask, what does getReplyTo do?
+			if ($msg->getReplyTo()) 
 			{
 				// message wants a response
 				// process request
@@ -127,7 +127,7 @@ class rabbitMQServer
 			// Loop as long as the channel has callbacks registered
 			while (count($channel->callbacks))
 			{
-				$channel->wait(); //What does wait do?
+				$channel->wait(); 
 			}
 		}
 		catch (Exception $e)
@@ -227,7 +227,7 @@ class rabbitMQClient
 
 			$exchange->publish($json_message,$this->routing_key,AMQP_NOPARAM,array('reply_to'=>$callback_queue->getName(),'correlation_id'=>$uid));
       $this->response_queue[$uid] = "waiting";
-			$callback_queue->consume(array($this,'process_response'));
+			$callback_queue->consume(array($this,'process_response')); //What
 
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);

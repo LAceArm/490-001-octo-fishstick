@@ -8,7 +8,6 @@ function doLogin($username,$password,$email)
 {
    
 	echo "LOGIN ATTEMPT".PHP_EOL;
-	$webserver=new rabbitMQServer("WebServer.ini","frontEnd");
     // lookup username in database
 	// check password
    $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
@@ -16,20 +15,19 @@ function doLogin($username,$password,$email)
    $request['type']="login";
    $request['username']=$username;
    $request['password']=$password;
+   $request['email']=$email;
    $request['message']="Check if record exists";
    $response=$dbClient->send_request($request);
    if($response){
 	   if($response["Message"]==="Record found"){ 
 		   echo "SUCCESS";
 		   $response["returnCode"]='1';	   
-            	$webserver->process_message($response);
 		   return $response;
 	   }
    }
    echo "LOGIN FAILED".PHP_EOL;
    $response["Message"]="Login failed";
    $response["returnCode"]='0';
-   $webserver->process_message($response);
     return $response;
     //return false if not valid
 }
@@ -47,7 +45,6 @@ function doValidate($sessionId)
 		if($response["Message"]==="Record found"){
 			echo "SUCCESS";
 			$response["returnCode"]='1';
-			$webserver->process_message($response);
 			return $response;
 		}  	
 	}
@@ -66,12 +63,12 @@ function doRegister($username,$password,$email)
 	$request['type']="Register";
 	$request['username']=$username;
 	$request['password']=$password;
+	$request['email']=$email;
 	$request["Message"]='Insert into database';
 	$response=$dbClient->send_request($request); //Send Request
 	if($response){  //Request did not fail
 		if ($response["Message"]==="Record found"){
 			$response["returnCode"]='1';
-			$webserver->process_message($response);
 			return $response;
 	       	}
 	}
@@ -82,11 +79,11 @@ function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
   var_dump($request);
+ 
   if(!isset($request['type']))
   {
     return "ERROR: unsupported message type";
   }
-	//$webserver->process_message($request);
   switch ($request['type'])
   {
     case "Login":
@@ -95,7 +92,7 @@ function requestProcessor($request)
        return doValidate($request['sessionId']);
     case "register":
  	return doRegister($request['username'],$request['password'],$request["email"]);	    
-  }
+  } 
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
@@ -106,6 +103,7 @@ $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
 echo "BROKER  BEGIN".PHP_EOL;
 //$server->process_requests('requestProcessor');
 $webserver->process_requests('requestProcessor');
+
 echo "testRabbitMQServer END".PHP_EOL;
 exit();
 ?>
