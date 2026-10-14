@@ -4,76 +4,85 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+
 function doLogin($username,$password,$email)
 {
-   
-	echo "LOGIN ATTEMPT".PHP_EOL;
-    // lookup username in database
-	// check password
-   $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
-   $request=array();
+   global $dbClient;
+   echo "LOGIN ATTEMPT".PHP_EOL;
+   $request=array(); //Build Request
    $request['type']="login";
    $request['username']=$username;
    $request['password']=$password;
    $request['email']=$email;
-   $request['message']="Check if record exists";
-   $response=$dbClient->send_request($request);
-   if($response){
-	   if($response["Message"]==="Record found"){ 
-		   echo "SUCCESS";
-		   $response["returnCode"]='1';	   
-		   return $response;
+   $request['message']="Login Attempt";
+   try{ 
+	   echo "SENDING REQUEST".PHP_EOL;
+	   $response=$dbclient->send_request($request); //try to connect
+	   echo "RETURNED FROM DATABASE".PHP_EOL;
+	   if($response["success"]){
+		  return array("Message"=>"Login success","isUser"=>true); 
 	   }
+	   else{
+		  return array("Message"=>"Login failed","isUser"=>false); 
+	   }
+
    }
-   echo "LOGIN FAILED".PHP_EOL;
-   $response["Message"]="Login failed";
-   $response["returnCode"]='0';
-    return $response;
-    //return false if not valid
+   catch(Exception $e){ 
+	   echo "CONNECTION FAILED".PHP_EOL; //Fail
+   }   
+   echo "LOGIN RETURN".PHP_EOL;
 }
 
 function doValidate($sessionId)
 {
+	global $dbClient;
 	echo "VALIDATION ATTEMPT".PHP_EOL;
 	//Validates sessionID
-	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
 	$request=array();
 	$request["SessionID"]=$sessionID;
 	$request["Message"]="Check if SessionID is valid";
-	$response=$dbClient->send_request($request);
-	if($response){
-		if($response["Message"]==="Record found"){
-			echo "SUCCESS";
-			$response["returnCode"]='1';
-			return $response;
-		}  	
+	try{
+		$response=$dbClient->send_request($request);
+		if($response["success"]){
+			return array("Message"=> "Validation Success","hasSession"=>true);
+		}
+		else{
+		       return array("Message"=>"Validation Failure","hasSession"=>false);	
+		}
+	} 
+	catch (Exception $e){
+		echo "ERROR. COULD NOT CONNECT TO DATABASE".PHP_EOL;
+		return array("Message"=> "Can't connect to database");	
 	}
-	echo "VALIDATION FAILED".PHP_EOL;
-	return array("Message"=>"Validation failed","returnCode"=>'0');
 }
 
 //Function tries to register. If it succeeds, it will return true. Otherwise, it'll return false
 function doRegister($username,$password,$email)
 { 
+	global $dbClient; //Communicates with database
 	echo "REGISTER ATTEMPT".PHP_EOL;
-	//Tries to send data to database. Awaits response from database. If database says 
-	//record was inserted successfully, return true
-	$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer"); //Client. Will send request to database.
 	$request=array();
 	$request['type']="Register";
 	$request['username']=$username;
 	$request['password']=$password;
 	$request['email']=$email;
 	$request["Message"]='Insert into database';
-	$response=$dbClient->send_request($request); //Send Request
-	if($response){  //Request did not fail
-		if ($response["Message"]==="Record found"){
-			$response["returnCode"]='1';
-			return $response;
-	       	}
+	try{
+		echo "REGISTRATION ATTEMPT. ATTEMPTING TO CONNECT TO DATABASE".PHP_EOL;
+		$response=$dbClient->send_request($request);
+		if($response["success"]){
+			echo "REGISTRATION SUCCESS".PHP_EOL;
+			return array("Message"=>"Successfully registered new user","didRegister"=>true);	
+		}
+		else{
+			echo "REGISTER FAILURE.".PHP_EOL;
+			return array("Message"=>"Failed to register new user","didRegister"=>false);	
+		}
 	}
-	echo "REGISTRATION FAILED".PHP_EOL;
-	return array("returnCode"=>'0',"message"=> "Registration failed");
+	catch(Exception $e){
+		echo "COULD NOT CONNECT".PHP_EOL;
+		return array("Message"=>"Can't connect to database");
+	}
 }
 function requestProcessor($request)
 {
@@ -96,13 +105,14 @@ function requestProcessor($request)
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
-//$server = new rabbitMQServer("SQLMQ.ini","sqlServer");
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
+$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
 
 echo "BROKER  BEGIN".PHP_EOL;
-//$server->process_requests('requestProcessor');
+
 $webserver->process_requests('requestProcessor');
+
 
 echo "testRabbitMQServer END".PHP_EOL;
 exit();
