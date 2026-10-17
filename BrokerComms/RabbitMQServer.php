@@ -17,7 +17,7 @@ function doLogin($username,$password,$email)
    $request['message']="Login Attempt";
    try{ 
 	   echo "SENDING REQUEST".PHP_EOL;
-	   $response=$dbclient->send_request($request); //try to connect
+	   $response=$dbClient->send_request($request); //try to connect
 	   echo "RETURNED FROM DATABASE".PHP_EOL;
 	   if($response["success"]){
 		  return array("Message"=>"Login success","isUser"=>true); 
@@ -105,14 +105,20 @@ function requestProcessor($request)
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
+function processDB($request){ 
+	echo "PROCESSING DB_REQUESTS".PHP_EOL;
+	return true;
+}
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
 $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
+$dbServer=new rabbitMQClient("SQLMQ.ini","sqlServer");
 
 echo "BROKER  BEGIN".PHP_EOL;
 
 $webserver->process_requests('requestProcessor');
 
+$dbServer->process_requests('processDB');
 
 echo "testRabbitMQServer END".PHP_EOL;
 exit();

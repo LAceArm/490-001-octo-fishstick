@@ -174,7 +174,7 @@ class rabbitMQClient
 	// Processes responses. No idea how this will be used. Fun!
 	function process_response($response)
 	{
-		$uid = $response->getCorrelationId(); //Mystery function! 
+		$uid = $response->getCorrelationId(); 
 		if (!isset($this->response_queue[$uid]))
 		{
 		  echo  "unknown uid\n";
@@ -195,6 +195,7 @@ class rabbitMQClient
 	// That is a separate function 
 	function send_request($message)
 	{
+		echo "IN SEND_REQUEST. SENDING MESSAGE".PHP_EOL;
 		$uid = uniqid();
 
 		$json_message = json_encode($message);
@@ -226,8 +227,10 @@ class rabbitMQClient
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
 
 			$exchange->publish($json_message,$this->routing_key,AMQP_NOPARAM,array('reply_to'=>$callback_queue->getName(),'correlation_id'=>$uid));
-      $this->response_queue[$uid] = "waiting";
-			$callback_queue->consume(array($this,'process_response')); //What
+			$this->response_queue[$uid] = "waiting";
+
+
+			$callback_queue->consume(array($this,'process_response')); 
 
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);
