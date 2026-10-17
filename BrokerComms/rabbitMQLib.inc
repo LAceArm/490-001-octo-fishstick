@@ -180,15 +180,23 @@ class rabbitMQClient
 		  echo  "unknown uid\n";
 		  return true;
 		}
-    $this->conn_queue->ack($response->getDeliveryTag());
-		$body = $response->getBody();
-		$payload = json_decode($body, true);
-		if (!(isset($payload)))
-		{
-			$payload = "[empty response]";
+		try{
+    			$this->conn_queue->ack($response->getDeliveryTag());
+			$body = $response->getBody();
+			$payload = json_decode($body, true);
+			if (!(isset($payload)))
+			{
+				$payload = "[empty response]";
+			}
+			$this->response_queue[$uid] = $payload;
+			return true;
 		}
-		$this->response_queue[$uid] = $payload;
-		return false;
+		catch (Exception $e){
+			echo "RabbitMQ encountered an exception:";
+			var_dump($e);
+			echo "\n"
+			return false;
+		}
 	}
 
 	// Send request to server. Unlike the equivalent function in Server, this one does not have a way to process responses
