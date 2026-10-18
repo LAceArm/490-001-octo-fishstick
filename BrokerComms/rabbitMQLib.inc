@@ -189,13 +189,12 @@ class rabbitMQClient
 				$payload = "[empty response]";
 			}
 			$this->response_queue[$uid] = $payload;
-			return true;
+			return false;
 		}
 		catch (Exception $e){
-			echo "RabbitMQ encountered an exception:";
-			var_dump($e);
-			echo "\n";
-			return false;
+			echo "RabbitMQ ran into an exception: ";
+			var_dump($e); echo "\n";
+			return true;	
 		}
 	}
 
