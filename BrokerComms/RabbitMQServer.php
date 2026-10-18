@@ -105,10 +105,6 @@ function requestProcessor($request)
   return array("returnCode" => '0', 'message'=>"Invalid type");
 }
 
-function processDB($request){ 
-	echo "PROCESSING DB_REQUESTS".PHP_EOL;
-	return true;
-}
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
 $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
