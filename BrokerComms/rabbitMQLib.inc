@@ -194,7 +194,7 @@ class rabbitMQClient
 		catch (Exception $e){
 			echo "RabbitMQ encountered an exception:";
 			var_dump($e);
-			echo "\n"
+			echo "\n";
 			return false;
 		}
 	}
