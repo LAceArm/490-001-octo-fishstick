@@ -9,6 +9,12 @@ function doLogin($username,$password,$email)
 {
    global $dbClient;
    echo "LOGIN ATTEMPT".PHP_EOL;
+   $request=array("Message"=>"Test","username"=>$username,"password"=>$password,"email"=>$email);
+   $response=$dbClient->send_request($request);
+   echo "Received Response: ".PHP_EOL;
+   print_r($response);
+   return $response;
+   /*
    $request=array(); //Build Request
    $request['type']="login";
    $request['username']=$username;
@@ -30,7 +36,7 @@ function doLogin($username,$password,$email)
    catch(Exception $e){ 
 	   echo "CONNECTION FAILED".PHP_EOL; //Fail
    }   
-   echo "LOGIN RETURN".PHP_EOL;
+	*/
 }
 
 function doValidate($sessionId)
@@ -95,7 +101,7 @@ function requestProcessor($request)
   }
   switch ($request['type'])
   {
-    case "login":
+  case "login":
       return doLogin($request['username'],$request['password'], $request["email"]);
     case "validate_session":
        return doValidate($request['sessionId']);

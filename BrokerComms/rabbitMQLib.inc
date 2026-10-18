@@ -202,7 +202,6 @@ class rabbitMQClient
 	// That is a separate function 
 	function send_request($message)
 	{
-		echo "IN SEND_REQUEST. SENDING MESSAGE".PHP_EOL;
 		$uid = uniqid();
 
 		$json_message = json_encode($message);
