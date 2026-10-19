@@ -171,7 +171,7 @@ class rabbitMQClient
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
 	}
-	// Processes responses. No idea how this will be used. Fun!
+	//Acknowledges a meeting
 	function process_response($response)
 	{
 		$uid = $response->getCorrelationId(); 
@@ -198,8 +198,7 @@ class rabbitMQClient
 		}
 	}
 
-	// Send request to server. Unlike the equivalent function in Server, this one does not have a way to process responses
-	// That is a separate function 
+	// Send request to server.
 	function send_request($message)
 	{
 		$uid = uniqid();
@@ -207,12 +206,12 @@ class rabbitMQClient
 		$json_message = json_encode($message);
 		try
 		{
-      $params = array();
-      $params['host'] = $this->BROKER_HOST;
-      $params['port'] = $this->BROKER_PORT;
-      $params['login'] = $this->USER;
-      $params['password'] = $this->PASSWORD;
-      $params['vhost'] = $this->VHOST;
+      			$params = array();
+      			$params['host'] = $this->BROKER_HOST;
+      			$params['port'] = $this->BROKER_PORT;
+      			$params['login'] = $this->USER;
+      			$params['password'] = $this->PASSWORD;
+      			$params['vhost'] = $this->VHOST;
 
 			$conn = new AMQPConnection($params);
 			$conn->connect();
