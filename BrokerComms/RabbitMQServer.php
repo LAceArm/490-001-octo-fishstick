@@ -3,18 +3,16 @@
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
+require_once('DBClient.php');
 
 
+/*
 function doLogin($username,$password,$email)
 {
    global $dbClient;
    echo "LOGIN ATTEMPT".PHP_EOL;
    $request=array("Message"=>"Test","username"=>$username,"password"=>$password,"email"=>$email);
    $response=$dbClient->send_request($request);
-   echo "Received Response: ".PHP_EOL;
-   print_r($response);
-   return $response;
-   /*
    $request=array(); //Build Request
    $request['type']="login";
    $request['username']=$username;
@@ -36,7 +34,7 @@ function doLogin($username,$password,$email)
    catch(Exception $e){ 
 	   echo "CONNECTION FAILED".PHP_EOL; //Fail
    }   
-	*/
+	
 }
 
 function doValidate($sessionId)
@@ -89,7 +87,7 @@ function doRegister($username,$password,$email)
 		echo "COULD NOT CONNECT".PHP_EOL;
 		return array("Message"=>"Can't connect to database");
 	}
-}
+}*/
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -114,13 +112,11 @@ function requestProcessor($request)
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
 $dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
-$dbServer=new rabbitMQClient("SQLMQ.ini","sqlServer");
 
 echo "BROKER  BEGIN".PHP_EOL;
 
 $webserver->process_requests('requestProcessor');
 
-$dbServer->process_requests('processDB');
 
 echo "testRabbitMQServer END".PHP_EOL;
 exit();
