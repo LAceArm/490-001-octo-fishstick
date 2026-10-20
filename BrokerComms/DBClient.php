@@ -6,12 +6,19 @@
 
 	$dbClient=new rabbitMQClient('SQLMQ.ini','sqlServer');
 
+	$response=$dbClient->send_request(array("Message"=>"test","type"=>"googly"));
+
+	echo "Received a response".PHP_EOL;
+
+	var_dump($response);
 	function doLogin($username,$password){
-		echo "LOGIN ATTEMPT FROM $username".PHP_EOL;
+		echo "LOGIN ATTEMPT FROM $username".PHP_EOL;  
 
 		global $dbClient;
 
 		$request=array();
+		
+		$request['type']="login";
 
 		$request['username']=$username;
 

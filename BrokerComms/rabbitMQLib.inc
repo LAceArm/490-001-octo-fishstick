@@ -181,7 +181,7 @@ class rabbitMQClient
 		  return true;
 		}
 		try{
-    			$this->conn_queue->ack($response->getDeliveryTag());
+			$this->conn_queue->ack($response->getDeliveryTag());
 			$body = $response->getBody();
 			$payload = json_decode($body, true);
 			if (!(isset($payload)))
@@ -206,6 +206,7 @@ class rabbitMQClient
 		$json_message = json_encode($message);
 		try
 		{
+			//Declare a new connection
       			$params = array();
       			$params['host'] = $this->BROKER_HOST;
       			$params['port'] = $this->BROKER_PORT;
@@ -216,26 +217,31 @@ class rabbitMQClient
 			$conn = new AMQPConnection($params);
 			$conn->connect();
 
+			//Make Channel based on connection
 			$channel = new AMQPChannel($conn);
-
+			
+			//Make Exchange based on Channel
 			$exchange = new AMQPExchange($channel);
-      $exchange->setName($this->exchange);
-      $exchange->setType($this->exchange_type);
-
-      $callback_queue = new AMQPQueue($channel);
-      $callback_queue->setName($this->queue."_response");
-      $callback_queue->declare();
+      			$exchange->setName($this->exchange);
+      			$exchange->setType($this->exchange_type);
+			
+			//Make a new queue based on channel (for the response)
+      			$callback_queue = new AMQPQueue($channel);
+      			$callback_queue->setName($this->queue."_response");
+      			$callback_queue->declare();
 			$callback_queue->bind($exchange->getName(),$this->routing_key.".response");
 
+			//Make a connection based on the channel
 			$this->conn_queue = new AMQPQueue($channel);
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
 
-			$exchange->publish($json_message,$this->routing_key,AMQP_NOPARAM,array('reply_to'=>$callback_queue->getName(),'correlation_id'=>$uid));
+	$exchange->publish($json_message,$this->routing_key,AMQP_NOPARAM,array('reply_to'=>$callback_queue->getName(),'correlation_id'=>$uid));
 			$this->response_queue[$uid] = "waiting";
+	
 
+			$callback_queue->consume(array($this,'process_response'));
 
-			$callback_queue->consume(array($this,'process_response')); 
 
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);

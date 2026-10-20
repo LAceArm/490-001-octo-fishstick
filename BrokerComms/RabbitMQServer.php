@@ -100,7 +100,7 @@ function requestProcessor($request)
   switch ($request['type'])
   {
   case "login":
-      return doLogin($request['username'],$request['password'], $request["email"]);
+      return doLogin($request['username'],$request['password']);
     case "validate_session":
        return doValidate($request['sessionId']);
     case "register":
@@ -111,7 +111,6 @@ function requestProcessor($request)
 
 
 $webserver=new rabbitMQServer("WebServer.ini","frontEnd");
-$dbClient=new rabbitMQClient("SQLMQ.ini","sqlServer");
 
 echo "BROKER  BEGIN".PHP_EOL;
 
